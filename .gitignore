@@ -1,0 +1,10 @@
+checkpoints
+data
+*__pycache__
+.neptune
+runs
+*.pdf
+*.docx
+*weight*
+images
+*.zip

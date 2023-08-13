@@ -1,0 +1,7 @@
+torch
+numpy
+tensorboardX
+lightning
+cv2
+torchvision
+torchmetrics

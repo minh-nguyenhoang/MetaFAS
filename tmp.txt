@@ -1,0 +1,28 @@
+
+def get_hsv_from_np(np_img, old_hsv: np.ndarray = None):
+    ''' The old hsv hsv is to taking some statistic from it.
+    Maybe rewrite the dataset to get the norm in the transform (BS) or apply the normalization at the end of the dataset (not really good either)
+    '''
+
+    if np.all(np_img < 1+1e-4):
+        np_img = np.clip(np_img * 255, 0, 255).astype(np.uint8)
+
+    hsv = cv2.cvtColor(np_img, cv2.COLOR_BGR2HSV).astype(float)
+
+    if old_hsv is not None:
+        if abs(old_hsv.min()) < 1e-6 and  abs(old_hsv.max() - 1) < 1e-6:
+            # This (hopefully) is a 0-1 range normalization
+            hmin = min(hsv.min(), 0)
+            hmax = hsv.max()
+            hsv = (hsv - hmin) / (hmax - hmin + 1e-9)
+        else:
+            # Assume this is a mean std normalization
+            mean = old_hsv.mean((0,1))
+            std = old_hsv.std((0,1))
+
+            curr_mean = np.broadcast_to(hsv.mean((0,1)), hsv.shape)
+            curr_std = np.broadcast_to(hsv.std((0,1)), hsv.shape)
+
+            hsv_normal = (hsv - curr_mean) / ( curr_std + 1e-9)  #hsv have mean 0 and std 1
+
+            hsv = hsv_normal * np.broadcast_to(std, hsv.shape) + np.broadcast_to(mean, hsv.shape)
